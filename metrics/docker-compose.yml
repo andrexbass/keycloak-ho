@@ -22,6 +22,9 @@ services:
     image: grafana/grafana
     ports:
       - "3000:3000"
+    command: >
+      bash -c "grafana-cli plugins install grafana-piechart-panel &&
+      grafana-server --config=/etc/grafana/grafana.ini --homepath=/usr/share/grafana"
     networks:
       - keycloak-network
     depends_on:
