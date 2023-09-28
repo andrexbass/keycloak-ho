@@ -1,0 +1,41 @@
+version: '3'
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.3
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: 
+      - "start-dev"
+      - "--http-port=8080"
+      - "--metrics-enabled=true"
+    volumes:
+      - ./providers:/opt/keycloak/providers
+    networks:
+      - keycloak-network
+    depends_on:
+      - grafana
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - keycloak-network
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command: "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus"
+    networks:
+      - keycloak-network
+
+networks:
+  keycloak-network:
