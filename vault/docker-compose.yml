@@ -1,0 +1,33 @@
+version: '3'
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:18.0
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./cofre:/secret/cofre
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: 
+      - "start-dev"
+      - "--http-port=8080"
+      - "--vault=file"
+      - "--vault-dir=/secret/cofre"
+    networks:
+      - keycloak-network
+    depends_on:
+      - ldap-server
+  
+  ldap-server:
+    image: osixia/openldap:1.5.0
+    environment:
+      - LDAP_DOMAIN=example.com
+      - LDAP_ADMIN_PASSWORD=lytsifhkslahdf994887
+    ports:
+      - "389:389"
+    networks:
+      - keycloak-network
+  
+networks:
+  keycloak-network:
